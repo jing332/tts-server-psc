@@ -13,7 +13,7 @@ type SyncClient struct {
 
 //goland:noinspection GoUnhandledErrorResult
 func (s *SyncClient) Pull() (string, error) {
-	response, err := http.Get("http://" + s.Address + "/api/plugin/pull")
+	response, err := http.Get("http://" + s.Address + "/api/sync/pull")
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +32,7 @@ func (s *SyncClient) Pull() (string, error) {
 }
 
 func (s *SyncClient) Push(code string) error {
-	response, err := http.Post("http://"+s.Address+"/api/plugin/push", "text/javascript", strings.NewReader(code))
+	response, err := http.Post("http://"+s.Address+"/api/sync/push", "text/javascript", strings.NewReader(code))
 	if err != nil {
 		return err
 	}
@@ -45,18 +45,15 @@ func (s *SyncClient) Push(code string) error {
 }
 
 func (s *SyncClient) ActionDebug() error {
-	response, err := http.Get("http://" + s.Address + "/api/plugin/action-debug")
-	if err != nil {
-		return err
-	}
-	if response.StatusCode != http.StatusOK {
-		return errors.New("HTTP状态码不等于OK：" + response.Status)
-	}
-	return nil
+	return s.Action("debug")
 }
 
 func (s *SyncClient) ActionUI() error {
-	response, err := http.Get("http://" + s.Address + "/api/plugin/action-ui")
+	return s.Action("ui")
+}
+
+func (s *SyncClient) Action(name string) error {
+	response, err := http.Get("http://" + s.Address + "/api/sync/action?action=" + name)
 	if err != nil {
 		return err
 	}
